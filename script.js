@@ -65,7 +65,7 @@ function loadData(date) {
 
           } else {
 
-            document.getElementById("result").textContent = "Wrong!";
+            document.getElementById("result").textContent = "Wrong! The correct answer was: " + data.answer;
             button.classList.add("wrong");
 
             incorrectCount++;
