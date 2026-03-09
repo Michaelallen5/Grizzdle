@@ -1,5 +1,8 @@
 name: Update dates.json
 
+permissions:
+  contents: write
+
 on:
   # Run every day at midnight Perth time (UTC+8 = 16:00 UTC)
   schedule:
