@@ -1,0 +1,49 @@
+name: Update dates.json
+
+on:
+  # Run every day at midnight Perth time (UTC+8 = 16:00 UTC)
+  schedule:
+    - cron: '0 16 * * *'
+  
+  # Also run when you push to main (so new quiz files trigger an update)
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/**'
+  
+  # Let you manually trigger it from GitHub
+  workflow_dispatch:
+
+jobs:
+  update-dates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Update dates.json
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const dataDir = path.join(__dirname, 'data');
+          const files = fs
+            .readdirSync(dataDir)
+            .filter(f => f.endsWith('.json'))
+            .map(f => f.replace('.json', ''))
+            .sort((a,b) => b.localeCompare(a));
+          fs.writeFileSync('dates.json', JSON.stringify(files, null, 2));
+          console.log('Updated dates.json with:', files);
+          "
+      
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add dates.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update dates.json" && git push)
