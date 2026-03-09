@@ -51,20 +51,22 @@ function loadData(date) {
 
         const button = document.createElement("button");
         button.textContent = choice;
+        button.classList.add("option-button");
 
         if(savedAnswers[date]){
           button.disabled = true;
-          button.style.cursor = 'not-allowed';
+          button.classList.add("disabled");
 
           if(choice === savedAnswers[date]){
             if(choice === data.answer){
-              button.style.backgroundColor = "green";
-              button.style.color = "white";
               document.getElementById("result").textContent = "Correct!";
+              button.classList.add("correct");
+
             } else {
-              button.style.backgroundColor = "red";
-              button.style.color = "white";
+
               document.getElementById("result").textContent = "Wrong!";
+              button.classList.add("wrong");
+              
             }
           }
         }
@@ -79,8 +81,7 @@ function loadData(date) {
           if(choice === data.answer){
 
             document.getElementById("result").textContent = "Correct!";
-            button.style.backgroundColor = "green";
-            button.style.color = "white";
+            button.classList.add("correct");
 
             correctCount++;
             localStorage.setItem("correctCount", correctCount);
@@ -89,17 +90,16 @@ function loadData(date) {
           } else {
 
             document.getElementById("result").textContent = "Wrong!";
-            button.style.backgroundColor = "red";
-            button.style.color = "white";
+            button.classList.add("wrong");
 
             incorrectCount++;
             localStorage.setItem("incorrectCount", incorrectCount);
             document.getElementById("incorrectCount").textContent = incorrectCount;
           }
 
-          document.querySelectorAll('#options button').forEach(btn => {
-            btn.disabled = true;
-            btn.style.cursor = 'not-allowed';
+          document.querySelectorAll('#options button').forEach(button => {
+            button.disabled = true;
+            button.classList.add("disabled");
           });
         };
 
