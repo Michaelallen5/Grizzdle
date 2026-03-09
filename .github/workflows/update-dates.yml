@@ -8,14 +8,6 @@ on:
   schedule:
     - cron: '0 16 * * *'
   
-  # Also run when you push to main (so new quiz files trigger an update)
-  push:
-    branches:
-      - main
-    paths:
-      - 'data/**'
-  
-  # Let you manually trigger it from GitHub
   workflow_dispatch:
 
 jobs:
