@@ -6,30 +6,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const dateParam = urlParams.get('date');
 const selectedDate = dateParam || today;
 
-function loadArchive() {
-  fetch('dates.json')
-    .then(res => res.json())
-    .then(dates => {
-      const archiveList = document.getElementById('archive-list');
-      if (!archiveList) return;
-      const availableDates = dates
-        .filter(date => date <= today)
-        .sort((a, b) => b.localeCompare(a));
-      availableDates.forEach(date => {
-        const link = document.createElement('a');
-        link.href = `index.html?date=${date}`;
-        link.textContent = new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        archiveList.appendChild(link);
-      });
-    })
-    .catch(_ => {
-      const archiveList = document.getElementById('archive-list');
-      if (archiveList) {
-        archiveList.innerHTML = '<p>Unable to load archive dates.</p>';
-      }
-    });
-}
-
 function loadData(date) {
   fetch(`/data/${date}.json`)
     .then(res => res.json())
@@ -64,7 +40,7 @@ function loadData(date) {
 
             } else {
 
-              document.getElementById("result").textContent = "Wrong!";
+              document.getElementById("result").textContent = "Wrong! The correct answer was: " + data.answer;
               button.classList.add("wrong");
               
             }
@@ -112,6 +88,30 @@ function loadData(date) {
       document.getElementById("question").textContent = "Oops, Grizz forgot to add today's question!";
       document.getElementById("result").textContent = "Please berate him on discord to fix this issue!";
       document.getElementById("options").innerHTML = '';
+    });
+}
+
+function loadArchive() {
+  fetch('dates.json')
+    .then(res => res.json())
+    .then(dates => {
+      const archiveList = document.getElementById('archive-list');
+      if (!archiveList) return;
+      const availableDates = dates
+        .filter(date => date <= today)
+        .sort((a, b) => b.localeCompare(a));
+      availableDates.forEach(date => {
+        const link = document.createElement('a');
+        link.href = `index.html?date=${date}`;
+        link.textContent = new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        archiveList.appendChild(link);
+      });
+    })
+    .catch(_ => {
+      const archiveList = document.getElementById('archive-list');
+      if (archiveList) {
+        archiveList.innerHTML = '<p>Unable to load archive dates.</p>';
+      }
     });
 }
 
