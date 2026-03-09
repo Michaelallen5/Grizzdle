@@ -34,6 +34,12 @@ function loadData(date) {
     .then(res => res.json())
     .then(data => {
 
+      const savedAnswers = JSON.parse(localStorage.getItem('answers')) || {};
+      let correctCount = Number(localStorage.getItem('correctCount')) || 0;
+      let incorrectCount = Number(localStorage.getItem('incorrectCount')) || 0;
+
+      document.getElementById("correctCount").textContent = correctCount;
+      document.getElementById("incorrectCount").textContent = incorrectCount;
       document.getElementById("question").textContent = data.question;
 
       const choicesDiv = document.getElementById("options");
@@ -45,15 +51,49 @@ function loadData(date) {
         const button = document.createElement("button");
         button.textContent = choice;
 
+        if(savedAnswers[date]){
+          button.disabled = true;
+          button.style.cursor = 'not-allowed';
+
+          if(choice === savedAnswers[date]){
+            if(choice === data.answer){
+              button.style.backgroundColor = "green";
+              button.style.color = "white";
+              document.getElementById("result").textContent = "Correct!";
+            } else {
+              button.style.backgroundColor = "red";
+              button.style.color = "white";
+              document.getElementById("result").textContent = "Wrong!";
+            }
+          }
+        }
+
         button.onclick = () => {
+
+          if(savedAnswers[date]) return;
+
+          savedAnswers[date] = choice;
+          localStorage.setItem("answers", JSON.stringify(savedAnswers));
+
           if(choice === data.answer){
+
             document.getElementById("result").textContent = "Correct!";
             button.style.backgroundColor = "green";
             button.style.color = "white";
+
+            correctCount++;
+            localStorage.setItem("correctCount", correctCount);
+            document.getElementById("correctCount").textContent = correctCount;
+
           } else {
+
             document.getElementById("result").textContent = "Wrong!";
             button.style.backgroundColor = "red";
             button.style.color = "white";
+
+            incorrectCount++;
+            localStorage.setItem("incorrectCount", incorrectCount);
+            document.getElementById("incorrectCount").textContent = incorrectCount;
           }
 
           document.querySelectorAll('#options button').forEach(btn => {
@@ -79,5 +119,3 @@ loadData(selectedDate);
 if (window.location.pathname.endsWith('archive.html')) {
   loadArchive();
 }
-
-
