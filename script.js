@@ -1,11 +1,12 @@
-const today = new Date().toISOString().slice(0,10);
+const today = new Date().toLocaleDateString('en-CA', {
+  timeZone: 'Australia/Perth'
+});
 
 const urlParams = new URLSearchParams(window.location.search);
 const dateParam = urlParams.get('date');
 const selectedDate = dateParam || today;
 
 function loadArchive() {
-  const today = new Date().toISOString().slice(0, 10);
   fetch('dates.json')
     .then(res => res.json())
     .then(dates => {
