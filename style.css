@@ -79,6 +79,14 @@ button:hover {
     background-color: darkgreen;
 }
 
+.emoji {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 150px;
+    height: auto;
+}
+
 h1 {
     color: orange;
     font-family: 'Courier New', Courier, monospace;

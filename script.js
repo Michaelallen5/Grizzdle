@@ -37,8 +37,8 @@ function loadData(date) {
       document.getElementById("question").textContent = data.question;
 
       const choicesDiv = document.getElementById("options");
-      choicesDiv.innerHTML = ''; // Clear previous buttons
-      document.getElementById("result").textContent = ''; // Clear result
+      choicesDiv.innerHTML = '';
+      document.getElementById("result").textContent = '';
 
       data.options.forEach((choice, index) => {
 
@@ -70,14 +70,12 @@ function loadData(date) {
     .catch(error => {
       document.getElementById("question").textContent = "Oops, Grizz forgot to add today's question!";
       document.getElementById("result").textContent = "Please berate him on discord to fix this issue!";
-      document.getElementById("options").innerHTML = ''; // Clear buttons on error
+      document.getElementById("options").innerHTML = '';
     });
 }
 
-// Load the selected data initially
 loadData(selectedDate);
 
-// If we're on the archive page, populate the list
 if (window.location.pathname.endsWith('archive.html')) {
   loadArchive();
 }
