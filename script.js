@@ -7,7 +7,7 @@ const dateParam = urlParams.get('date');
 const selectedDate = dateParam || today;
 
 function loadData(date) {
-  fetch(`data/${date}.json`)
+  fetch(`./data/${date}.json`)
     .then(res => res.json())
     .then(data => {
 
