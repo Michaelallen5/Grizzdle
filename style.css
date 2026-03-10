@@ -1,7 +1,10 @@
 header {
   display: flex;
   align-items: center;
-  position: relative;;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  position: relative;
 }
 
 header h1 {
@@ -9,30 +12,33 @@ header h1 {
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
-  font-size: 84px;
+  font-size: clamp(36px, 8vw, 84px);
   color: orange;
   font-family: 'Courier New', Courier, monospace;
-  top: 20px;
+  z-index: 0;
 }
 
-button {
+#archive-button {
     background-color: purple;
     color: white;
     padding: 10px 20px;
-    margin: 10px;
+    margin-right: auto;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 32px;
     transition: 0.2s;
+    flex-shrink: 0;
+    z-index: 1;
 }
 
-button:hover {
+#archive-button:hover {
     background-color: blue;
 }
 
 body {
     background-color: darkslategrey;
+    padding-top: 40px;
 }
 
 div {
@@ -91,7 +97,6 @@ div {
 
 #archive-list a {
   background-color: beige;
-  color: white;
   padding: 50px 100px;
   margin: 5px;
   border: none;
