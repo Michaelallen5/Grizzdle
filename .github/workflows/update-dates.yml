@@ -4,9 +4,8 @@ permissions:
   contents: write
 
 on:
-  # Run every day at midnight Perth time (UTC+8 = 16:00 UTC)
   schedule:
-    - cron: '0 16 * * *'
+    - cron: '0 15 * * *'
   
   workflow_dispatch:
 
