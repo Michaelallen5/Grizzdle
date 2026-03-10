@@ -2,21 +2,18 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
   padding: 20px;
   position: relative;
 }
 
-header h1 {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
+h1 {
+  text-align: center;
   font-size: clamp(36px, 8vw, 84px);
   color: orange;
   font-family: 'Courier New', Courier, monospace;
   z-index: 0;
-}
+  margin: 0;
+  text-shadow: 2px 2px darkslategrey, -2px 2px darkslategrey, 2px -2px darkslategrey, -2px -2px darkslategrey;}
 
 #archive-button {
     background-color: purple;
@@ -58,12 +55,12 @@ div {
 }
 
 #options .option-button {
-  padding: 50px 100px;
+  background-color: beige;
+  padding: clamp(10px, 5vw, 50px) clamp(20px, 10vw, 100px);
   font-size: 32px;
   border: none;
-  border-radius: 10px;
+  border-radius: 20px;
   cursor: pointer;
-  background-color: beige;
   color: black;
   transition: 0.2s;
 }
@@ -86,10 +83,9 @@ div {
   cursor: not-allowed;
 }
 
-
 #archive-list {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
     justify-items: center;
     margin: 20px 0;
@@ -97,12 +93,12 @@ div {
 
 #archive-list a {
   background-color: beige;
-  padding: 50px 100px;
+  padding: clamp(10px, 5vw, 50px) clamp(20px, 10vw, 200px);
   margin: 5px;
   border: none;
-  border-radius: 10px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 32px;
+  font-size: clamp(16px, 3vw, 32px);;
   color: black;
   transition: 0.2s;
 }
@@ -140,8 +136,8 @@ p {
 
 .emoji {
     position: absolute;
-    top: 10px;
     right: 10px;
     width: 150px;
     height: auto;
+    z-index: -1;
 }
