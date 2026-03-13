@@ -20,17 +20,17 @@ h1 {
     color: white;
     padding: 10px 20px;
     margin-right: auto;
-    border: none;
-    border-radius: 5px;
+    border: 2px solid beige;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 32px;
+    font-size: 48px;
     transition: 0.2s;
     flex-shrink: 0;
     z-index: 1;
 }
 
 #archive-button:hover {
-    background-color: blue;
+    background-color: #800020;
 }
 
 body {
