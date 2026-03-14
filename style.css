@@ -23,7 +23,7 @@ h1 {
     border: 2px solid beige;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 48px;
+    font-size: clamp(32px, 5vw, 48px);
     transition: 0.2s;
     flex-shrink: 0;
     z-index: 1;
@@ -52,17 +52,20 @@ div {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  padding: 20px;
+  margin-top: 20px;
 }
 
 #options .option-button {
   background-color: beige;
   padding: clamp(10px, 5vw, 50px) clamp(20px, 10vw, 100px);
-  font-size: 32px;
+  font-size: clamp(16px, 5vw, 32px);
   border: none;
   border-radius: 20px;
   cursor: pointer;
   color: black;
   transition: 0.2s;
+  margin: 5px;
 }
 
 #options .option-button:hover {
@@ -120,6 +123,56 @@ p {
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
     font-size: 48px;
+    margin: 0;
+}
+
+#share-container {
+  text-align: center;
+  margin-top: 10px;
+}
+
+#share-button {
+  background-color: beige;
+  color: black;
+  border: none;
+  border-radius: 20px;
+  padding: 14px 28px;
+  font-size: 32px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin: 0;
+}
+
+#share-button:hover {
+  background-color: grey;
+}
+
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #080808;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 20px;
+  font-size: 32px;
+  font-family: Arial, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+  animation: toast-fade 2.5s ease forwards;
+}
+
+@keyframes toast-fade {
+  0%   { opacity: 0; transform: translate(-50%, 0%); }
+  15%  { opacity: 0.95; transform: translate(-50%, -50%); }
+  75%  { opacity: 0.95; transform: translate(-50%, -50%);}
+  100% { opacity: 0; transform: translate(-50%, 0%); }
+}
+
+.hidden {
+  display: none;
 }
 
 #correctCount{

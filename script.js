@@ -5,6 +5,8 @@ const today = new Date().toLocaleDateString('en-CA', {
 const urlParams = new URLSearchParams(window.location.search);
 const dateParam = urlParams.get('date');
 const selectedDate = dateParam || today;
+const correctDayShareMessage = 'I just proved that I am a true friend of Grizz!';
+const incorrectDayShareMessage = 'I am a not a true friend of Grizz.';
 
 function loadData(date) {
   fetch(`./data/${date}.json`)
@@ -22,8 +24,13 @@ function loadData(date) {
       const choicesDiv = document.getElementById("options");
       choicesDiv.innerHTML = '';
       document.getElementById("result").textContent = '';
+      const shareContainer = document.getElementById('share-container');
 
-      data.options.forEach((choice, index) => {
+      if (shareContainer) {
+        shareContainer.classList.add('hidden');
+      }
+
+      data.options.forEach((choice) => {
 
         const button = document.createElement("button");
         button.textContent = choice;
@@ -44,6 +51,8 @@ function loadData(date) {
               button.classList.add("wrong");
               
             }
+
+            setupShareButton(date, data, savedAnswers[date], correctCount, incorrectCount);
           }
         }
 
@@ -77,6 +86,8 @@ function loadData(date) {
             button.disabled = true;
             button.classList.add("disabled");
           });
+
+          setupShareButton(date, data, savedAnswers[date], correctCount, incorrectCount);
         };
 
         choicesDiv.appendChild(button);
@@ -84,11 +95,58 @@ function loadData(date) {
       });
 
     })
-    .catch(error => {
+    .catch(() => {
       document.getElementById("question").textContent = "Oops, Grizz forgot to add today's question!";
       document.getElementById("result").textContent = "Please berate him on discord to fix this issue!";
       document.getElementById("options").innerHTML = '';
+
+      const shareContainer = document.getElementById('share-container');
+      if (shareContainer) {
+        shareContainer.classList.add('hidden');
+      }
     });
+}
+
+function getShareMessage(date, data, selectedChoice, correctCount, incorrectCount) {
+  const wasCorrect = selectedChoice === data.answer;
+  const dayResultText = wasCorrect ? '✅' : '❌';
+  const customShareMessage = wasCorrect ? correctDayShareMessage : incorrectDayShareMessage;
+
+  return [
+    `Grizzdle ${date}`,
+    dayResultText,
+    customShareMessage,
+    `Overall: ${correctCount} correct | ${incorrectCount} incorrect`
+  ].join('\n');
+}
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  toast.addEventListener('animationend', () => toast.remove());
+}
+
+function setupShareButton(date, data, selectedChoice, correctCount, incorrectCount) {
+  const shareContainer = document.getElementById('share-container');
+  const shareButton = document.getElementById('share-button');
+
+  if (!shareContainer || !shareButton || !selectedChoice) {
+    return;
+  }
+
+  const shareText = getShareMessage(date, data, selectedChoice, correctCount, incorrectCount);
+  shareContainer.classList.remove('hidden');
+
+  shareButton.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      showToast('Copied to clipboard!');
+    } catch {
+      showToast('Unable to copy result.');
+    }
+  };
 }
 
 function loadArchive() {
@@ -107,7 +165,7 @@ function loadArchive() {
         archiveList.appendChild(link);
       });
     })
-    .catch(_ => {
+    .catch(() => {
       const archiveList = document.getElementById('archive-list');
       if (archiveList) {
         archiveList.innerHTML = '<p>Unable to load archive dates.</p>';
