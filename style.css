@@ -48,6 +48,10 @@ div {
     font-weight: bold;
 }
 
+#question {
+  margin: 10px;
+}
+
 #options {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -108,6 +112,10 @@ div {
 
 #archive-list a:hover {
     background-color: grey;
+}
+
+#archive-question {
+  margin: 10px;
 }
 
 p {

@@ -113,7 +113,7 @@ function getShareMessage(date, data, selectedChoice, correctCount, incorrectCoun
   const customShareMessage = wasCorrect ? correctDayShareMessage : incorrectDayShareMessage;
 
   return [
-    `Grizzdle ${date}`,
+    `https://www.grizzdle.com/ ${date}`,
     dayResultText,
     customShareMessage,
     `Overall: ${correctCount} correct | ${incorrectCount} incorrect`
