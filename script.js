@@ -123,6 +123,54 @@ function setGuestAnswers(answersByDate) {
   localStorage.setItem('answers', JSON.stringify(sanitizeAnswersByDate(answersByDate)));
 }
 
+async function deriveGuestCountsFromAnswers(answersByDate) {
+  const normalizedAnswers = sanitizeAnswersByDate(answersByDate);
+  const dates = Object.keys(normalizedAnswers);
+
+  if (dates.length === 0) {
+    return {
+      correctCount: 0,
+      incorrectCount: 0
+    };
+  }
+
+  const dayResults = await Promise.all(
+    dates.map(async (date) => {
+      try {
+        const response = await fetch(`./data/${date}.json`);
+        if (!response.ok) {
+          return null;
+        }
+
+        const dayData = await response.json();
+        if (typeof dayData.answer !== 'string') {
+          return null;
+        }
+
+        return normalizedAnswers[date] === dayData.answer ? 'correct' : 'incorrect';
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  let correctCount = 0;
+  let incorrectCount = 0;
+
+  dayResults.forEach((result) => {
+    if (result === 'correct') {
+      correctCount += 1;
+    } else if (result === 'incorrect') {
+      incorrectCount += 1;
+    }
+  });
+
+  return {
+    correctCount,
+    incorrectCount
+  };
+}
+
 async function syncAnswersFromServer(force = false) {
   if (!authState.token) {
     return getGuestAnswers();
@@ -296,9 +344,10 @@ function refreshAuthControls() {
 
 async function syncCountsFromServer() {
   if (!authState.token) {
-    const local = getLocalCounts();
-    updateCountDisplay(local.correctCount, local.incorrectCount);
-    return local;
+    const guestAnswers = getGuestAnswers();
+    const derivedCounts = await deriveGuestCountsFromAnswers(guestAnswers);
+    setLocalCounts(derivedCounts.correctCount, derivedCounts.incorrectCount);
+    return derivedCounts;
   }
 
   const stats = await apiRequest('/api/stats');
