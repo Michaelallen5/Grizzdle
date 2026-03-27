@@ -14,6 +14,7 @@ const productionAllowedOrigins = [
   'https://www.grizzdle.com'
 ];
 const defaultAllowedOrigins = productionAllowedOrigins;
+const ADMIN_API_KEY = String(process.env.ADMIN_API_KEY || '').trim();
 
 const allowedOrigins = new Set(
   (process.env.ALLOWED_ORIGINS || defaultAllowedOrigins.join(','))
@@ -30,7 +31,7 @@ app.use((req, res, next) => {
   if (origin && allowedOrigins.has(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Admin-Key');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   }
 
@@ -194,6 +195,19 @@ function authRequired(req, res, next) {
     token,
     username: session.username
   };
+
+  return next();
+}
+
+function adminRequired(req, res, next) {
+  if (!ADMIN_API_KEY) {
+    return res.status(503).json({ error: 'Admin access is not configured.' });
+  }
+
+  const headerKey = String(req.headers['x-admin-key'] || '').trim();
+  if (!headerKey || headerKey !== ADMIN_API_KEY) {
+    return res.status(401).json({ error: 'Invalid admin key.' });
+  }
 
   return next();
 }
@@ -399,6 +413,26 @@ app.post('/api/answers', authRequired, async (req, res) => {
   } catch (error) {
     console.error('Answers write error:', error);
     return res.status(500).json({ error: 'Unable to save answer right now.' });
+  }
+});
+
+app.get('/api/admin/users', adminRequired, async (req, res) => {
+  try {
+    const users = await readUsers();
+    const safeUsers = users.map((user) => ({
+      username: user.username,
+      correctCount: sanitizeCount(user.correctCount),
+      incorrectCount: sanitizeCount(user.incorrectCount),
+      answersByDate: sanitizeAnswersByDate(user.answersByDate)
+    }));
+
+    return res.json({
+      count: safeUsers.length,
+      users: safeUsers
+    });
+  } catch (error) {
+    console.error('Admin users read error:', error);
+    return res.status(500).json({ error: 'Unable to load users right now.' });
   }
 });
 
