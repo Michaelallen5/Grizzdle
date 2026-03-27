@@ -78,6 +78,21 @@ function sanitizeAnswersByDate(value) {
   return cleaned;
 }
 
+function getUserAnswersSource(user) {
+  if (!user || typeof user !== 'object') {
+    return {};
+  }
+
+  return (
+    user.answersByDate ||
+    user.answersbydate ||
+    user.answers ||
+    user.answerByDate ||
+    user.answerHistory ||
+    {}
+  );
+}
+
 async function loadQuestionByDate(date) {
   const questionPath = path.join(__dirname, 'data', `${date}.json`);
 
@@ -115,10 +130,10 @@ async function deriveCountsFromAnswers(answersByDate) {
 }
 
 async function hydrateUserCounts(user) {
-  const answersByDate = sanitizeAnswersByDate(user.answersByDate);
+  const answersByDate = sanitizeAnswersByDate(getUserAnswersSource(user));
   const derivedCounts = await deriveCountsFromAnswers(answersByDate);
 
-  const previousAnswers = sanitizeAnswersByDate(user.answersByDate);
+  const previousAnswers = sanitizeAnswersByDate(getUserAnswersSource(user));
   const previousCorrect = sanitizeCount(user.correctCount);
   const previousIncorrect = sanitizeCount(user.incorrectCount);
 
@@ -294,7 +309,7 @@ app.post('/api/login', async (req, res) => {
       username,
       correctCount: user.correctCount,
       incorrectCount: user.incorrectCount,
-      answersByDate: sanitizeAnswersByDate(user.answersByDate)
+      answersByDate: sanitizeAnswersByDate(getUserAnswersSource(user))
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -371,7 +386,7 @@ app.get('/api/answers', authRequired, async (req, res) => {
       await writeUsers(users);
     }
 
-    const answersByDate = sanitizeAnswersByDate(user.answersByDate);
+    const answersByDate = sanitizeAnswersByDate(getUserAnswersSource(user));
     return res.json({
       username: user.username,
       answersByDate
@@ -398,7 +413,7 @@ app.post('/api/answers', authRequired, async (req, res) => {
       return res.status(401).json({ error: 'Session user does not exist.' });
     }
 
-    const answersByDate = sanitizeAnswersByDate(users[userIndex].answersByDate);
+    const answersByDate = sanitizeAnswersByDate(getUserAnswersSource(users[userIndex]));
     answersByDate[date] = choice;
     users[userIndex].answersByDate = answersByDate;
     await hydrateUserCounts(users[userIndex]);
@@ -423,7 +438,7 @@ app.get('/api/admin/users', adminRequired, async (req, res) => {
       username: user.username,
       correctCount: sanitizeCount(user.correctCount),
       incorrectCount: sanitizeCount(user.incorrectCount),
-      answersByDate: sanitizeAnswersByDate(user.answersByDate)
+      answersByDate: sanitizeAnswersByDate(getUserAnswersSource(user))
     }));
 
     return res.json({
