@@ -10,6 +10,7 @@
     <meta content="https://www.grizzdle.com/" property="og:url" />
     <meta content="https://www.grizzdle.com/Bear_emoji.png" property="og:image" />
     <meta content="#6F4E37" data-react-helmet="true" name="theme-color" />
+    <meta name="grizzdle-api-base-url" content="https://grizzdle.onrender.com">
 </head>
 
 <body>
@@ -18,6 +19,18 @@
     <img src="Bear_emoji.png" alt="Grizz Emoji" class="emoji">
     </header>
     <h1>Grizzdle</h1>
+    <section id="auth-panel">
+    <div id="auth-fields">
+    <input id="username" type="text" autocomplete="username" placeholder="Username" maxlength="32">
+    <input id="password" type="password" autocomplete="current-password" placeholder="Password" maxlength="128">
+    </div>
+    <div id="auth-actions">
+    <button id="register-button" type="button">Register</button>
+    <button id="login-button" type="button">Login</button>
+    <button id="logout-button" type="button" class="hidden">Logout</button>
+    </div>
+    <p id="auth-status">Not logged in. Progress saves on this device only.</p>
+    </section>
     <div id="question"></div>
     <div id="options"></div>
     <p id="result"></p>
