@@ -24,18 +24,7 @@ function getApiBaseUrl() {
     return metaApiBase.replace(/\/$/, '');
   }
 
-  const configured = window.localStorage.getItem('apiBaseUrl');
-  if (configured) {
-    return configured.replace(/\/$/, '');
-  }
-
-  const { protocol, hostname, port, origin } = window.location;
-  const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
-  if (isLocalHost && protocol.startsWith('http') && port !== '3000') {
-    return `${protocol}//${hostname}:3000`;
-  }
-
-  return origin;
+  return window.location.origin;
 }
 
 const apiBaseUrl = getApiBaseUrl();
@@ -281,7 +270,7 @@ async function apiRequest(path, method = 'GET', body = null) {
   if (!response.ok) {
     let message = payload?.error || `Request failed with status ${response.status}`;
     if (response.status === 405) {
-      message = 'API endpoint is not accepting this method. If testing locally, start the Node app with "npm start" and open http://localhost:3000.';
+      message = 'API endpoint is not accepting this method right now.';
     }
 
     const err = new Error(message);

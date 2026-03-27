@@ -9,14 +9,11 @@ const PORT = Number(process.env.PORT) || 3000;
 const USERS_PATH = path.join(__dirname, 'users.json');
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 const sessions = new Map();
-const defaultAllowedOrigins = [
-  'http://localhost:5500',
-  'http://127.0.0.1:5500',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
+const productionAllowedOrigins = [
   'https://grizzdle.com',
   'https://www.grizzdle.com'
 ];
+const defaultAllowedOrigins = productionAllowedOrigins;
 
 const allowedOrigins = new Set(
   (process.env.ALLOWED_ORIGINS || defaultAllowedOrigins.join(','))
@@ -408,5 +405,5 @@ app.post('/api/answers', authRequired, async (req, res) => {
 app.use(express.static(__dirname));
 
 app.listen(PORT, () => {
-  console.log(`Grizzdle server running on http://localhost:${PORT}`);
+  console.log(`Grizzdle server running on port ${PORT}`);
 });
