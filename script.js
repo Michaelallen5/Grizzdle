@@ -424,6 +424,12 @@ function wireAuthHandlers() {
       setLocalCounts(toSafeCount(payload.correctCount), toSafeCount(payload.incorrectCount));
       refreshAuthControls();
       showToast('Account created. Your local score has been saved to your account.');
+
+      if (isLoginPage()) {
+        goToGamePage();
+        return;
+      }
+
       await loadData(selectedDate);
     } catch (error) {
       showToast(error.message || 'Unable to register.');
@@ -459,6 +465,12 @@ function wireAuthHandlers() {
       if (mergeSummary.mergedDays > 0) {
         showToast(`Added ${mergeSummary.mergedDays} local day${mergeSummary.mergedDays === 1 ? '' : 's'} to this account.`);
       }
+
+      if (isLoginPage()) {
+        goToGamePage();
+        return;
+      }
+
       await loadData(selectedDate);
     } catch (error) {
       showToast(error.message || 'Unable to log in.');
@@ -475,6 +487,12 @@ function wireAuthHandlers() {
     clearAuthSession();
     refreshAuthControls();
     showToast('Logged out.');
+
+    if (isLoginPage()) {
+      goToGamePage();
+      return;
+    }
+
     await loadData(selectedDate);
   };
 
@@ -691,13 +709,47 @@ function loadArchive() {
     });
 }
 
+function getCurrentPageName() {
+  return window.location.pathname.split('/').pop() || 'index.html';
+}
+
+function isArchivePage() {
+  return getCurrentPageName() === 'archive.html';
+}
+
+function isLoginPage() {
+  return getCurrentPageName() === 'login.html';
+}
+
+function goToGamePage() {
+  const params = new URLSearchParams(window.location.search);
+  const date = params.get('date');
+  window.location.href = date ? `index.html?date=${encodeURIComponent(date)}` : 'index.html';
+}
+
 async function initializeApp() {
-  if (window.location.pathname.endsWith('archive.html')) {
+  if (isArchivePage()) {
     loadArchive();
     return;
   }
 
   wireAuthHandlers();
+
+  if (isLoginPage()) {
+    if (authState.token) {
+      try {
+        await syncCountsFromServer();
+      } catch {
+        clearAuthSession();
+        showToast('Session expired. Please log in again.');
+      }
+    }
+
+    refreshAuthControls();
+    const local = getLocalCounts();
+    updateCountDisplay(local.correctCount, local.incorrectCount);
+    return;
+  }
 
   if (authState.token) {
     try {

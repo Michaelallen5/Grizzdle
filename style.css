@@ -16,26 +16,53 @@ h1 {
   text-shadow: 2px 2px darkslategrey, -2px 2px darkslategrey, 2px -2px darkslategrey, -2px -2px darkslategrey;}
 
 #archive-button {
-    background-color: purple;
-    color: white;
-    padding: 10px 20px;
-    margin-right: auto;
-    border: 2px solid beige;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: clamp(32px, 5vw, 48px);
-    transition: 0.2s;
-    flex-shrink: 0;
-    z-index: 1;
+  background-color: purple;
+  color: white;
+  padding: 10px 20px;
+  margin-right: auto;
+  border: 2px solid beige;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: clamp(24px, 5vw, 48px);
+  transition: 0.2s;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
 #archive-button:hover {
-    background-color: #800020;
+  background-color: #800020;
 }
 
 body {
-    background-color: darkslategrey;
-    padding-top: 40px;
+  background-color: darkslategrey;
+  padding-top: 40px;
+}
+
+#account-link {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+#login-page-button {
+  position: fixed;
+  top: 68px;
+  right: 20px;
+  background-color: purple;
+  color: white;
+  padding: 10px 20px;
+  margin-right: auto;
+  border: 2px solid beige;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: clamp(24px, 5vw, 48px);
+  transition: 0.2s;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+#login-page-button:hover {
+  background-color: #800020;
 }
 
 #auth-panel {
@@ -88,17 +115,18 @@ body {
 }
 
 div {
-    color: white;
-    font-family: sans-serif;
-    text-align: center;
-    margin-top: 50px;
-    margin-bottom: 20px;
-    font-size: 36px;
-    font-weight: bold;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  font-size: 36px;
+  font-weight: bold;
 }
 
 #question {
   margin: 10px;
+  text-shadow: 2px 2px darkslategrey, -2px 2px darkslategrey, 2px -2px darkslategrey, -2px -2px darkslategrey;
 }
 
 #options {
@@ -140,11 +168,11 @@ div {
 }
 
 #archive-list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    justify-items: center;
-    margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  justify-items: center;
+  margin: 20px 0;
 }
 
 #archive-list a {
@@ -165,22 +193,23 @@ div {
 
 #archive-question {
   margin: 10px;
+  text-shadow: 2px 2px darkslategrey, -2px 2px darkslategrey, 2px -2px darkslategrey, -2px -2px darkslategrey;
 }
 
 p {
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin-top: 20px;
-    font-size: 24px;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 24px;
 }
 
 #result {
-    color: orange;
-    font-family: Arial, Helvetica, sans-serif;
-    text-align: center;
-    font-size: 48px;
-    margin: 0;
+  color: orange;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-size: 48px;
+  margin: 0;
 }
 
 #share-container {
@@ -233,23 +262,26 @@ p {
 }
 
 #correctCount{
-    color: lightgreen;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 24px;
+  color: lightgreen;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 24px;
 }
 
 #incorrectCount{
-    color: red;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 24px;
+  color: red;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 24px;
 }
 
 .emoji {
-    position: absolute;
-    right: 10px;
-    width: 150px;
-    height: auto;
-    z-index: -1;
+  position: fixed;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: auto;
+  z-index: -100;
+  pointer-events: none;
 }
 
 @media (max-width: 900px) {

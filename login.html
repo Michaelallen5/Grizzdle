@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Grizzdle Login</title>
+    <link rel="stylesheet" href="style.css?v=1.0.0">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta content="Grizzdle Login" property="og:title" />
+    <meta content="Manage your Grizzdle account and sync progress across devices." property="og:description" />
+    <meta content="https://www.grizzdle.com/login.html" property="og:url" />
+    <meta content="https://www.grizzdle.com/Bear_emoji.png" property="og:image" />
+    <meta content="#6F4E37" data-react-helmet="true" name="theme-color" />
+    <meta name="grizzdle-api-base-url" content="https://grizzdle.onrender.com">
+</head>
+
+<body>
+    <header>
+    <button id="archive-button" onclick="window.location='index.html'">Back To Grizzdle</button>
+    <img src="Bear_emoji.png" alt="Grizz Emoji" class="emoji">
+    </header>
+    <h1>Account</h1>
+    <section id="auth-panel">
+    <div id="auth-fields">
+    <input id="username" type="text" autocomplete="username" placeholder="Username" maxlength="32">
+    <input id="password" type="password" autocomplete="current-password" placeholder="Password" maxlength="128">
+    </div>
+    <div id="auth-actions">
+    <button id="register-button" type="button">Register</button>
+    <button id="login-button" type="button">Login</button>
+    <button id="logout-button" type="button" class="hidden">Logout</button>
+    </div>
+    <p id="auth-status">Not logged in. Progress saves on this device only.</p>
+    </section>
+    <p>
+    Correct: <span id="correctCount"></span> |
+    Incorrect: <span id="incorrectCount"></span>
+    </p>
+    <script src="script.js?v=1.0.0"></script>
+</body>
+
+</html>
