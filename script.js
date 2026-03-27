@@ -15,6 +15,15 @@ const authState = {
 };
 
 function getApiBaseUrl() {
+  const metaApiBase = document
+    .querySelector('meta[name="grizzdle-api-base-url"]')
+    ?.getAttribute('content')
+    ?.trim();
+
+  if (metaApiBase) {
+    return metaApiBase.replace(/\/$/, '');
+  }
+
   const configured = window.localStorage.getItem('apiBaseUrl');
   if (configured) {
     return configured.replace(/\/$/, '');

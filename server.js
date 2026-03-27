@@ -9,12 +9,21 @@ const PORT = Number(process.env.PORT) || 3000;
 const USERS_PATH = path.join(__dirname, 'users.json');
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 const sessions = new Map();
-const allowedOrigins = new Set([
+const defaultAllowedOrigins = [
   'http://localhost:5500',
   'http://127.0.0.1:5500',
   'http://localhost:3000',
-  'http://127.0.0.1:3000'
-]);
+  'http://127.0.0.1:3000',
+  'https://grizzdle.com',
+  'https://www.grizzdle.com'
+];
+
+const allowedOrigins = new Set(
+  (process.env.ALLOWED_ORIGINS || defaultAllowedOrigins.join(','))
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
 
 app.use(express.json());
 
@@ -206,8 +215,8 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ error: 'Username must be 32 characters or less.' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    if (password.length < 3) {
+      return res.status(400).json({ error: 'Password must be at least 3 characters.' });
     }
 
     const users = await readUsers();
