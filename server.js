@@ -6,7 +6,9 @@ const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const USERS_PATH = path.join(__dirname, 'users.json');
+const DATA_DIR = String(process.env.DATA_DIR || '').trim();
+const USERS_PATH = String(process.env.USERS_PATH || '').trim() || path.join(DATA_DIR || __dirname, 'users.json');
+const SESSIONS_PATH = String(process.env.SESSIONS_PATH || '').trim() || path.join(DATA_DIR || __dirname, 'sessions.json');
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 const sessions = new Map();
 const productionAllowedOrigins = [
@@ -46,6 +48,56 @@ function normalizeUsername(username) {
   return String(username || '').trim().toLowerCase();
 }
 
+function toSessionList() {
+  return Array.from(sessions.entries()).map(([token, session]) => ({
+    token,
+    username: normalizeUsername(session?.username),
+    expiresAt: Number(session?.expiresAt) || 0
+  }));
+}
+
+async function writeJsonAtomic(filePath, value) {
+  const tempPath = `${filePath}.tmp`;
+  await fs.writeFile(tempPath, JSON.stringify(value, null, 2), 'utf8');
+  await fs.rename(tempPath, filePath);
+}
+
+async function persistSessions() {
+  const now = Date.now();
+  const validSessions = toSessionList().filter((session) => {
+    return session.token && session.username && session.expiresAt > now;
+  });
+
+  await writeJsonAtomic(SESSIONS_PATH, validSessions);
+}
+
+async function restoreSessions() {
+  try {
+    const raw = await fs.readFile(SESSIONS_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return;
+    }
+
+    const now = Date.now();
+    for (const entry of parsed) {
+      const token = String(entry?.token || '').trim();
+      const username = normalizeUsername(entry?.username);
+      const expiresAt = Number(entry?.expiresAt) || 0;
+
+      if (!token || !username || expiresAt <= now) {
+        continue;
+      }
+
+      sessions.set(token, { username, expiresAt });
+    }
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      console.error('Session restore error:', error);
+    }
+  }
+}
+
 function sanitizeCount(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed < 0) {
@@ -83,14 +135,22 @@ function getUserAnswersSource(user) {
     return {};
   }
 
-  return (
-    user.answersByDate ||
-    user.answersbydate ||
-    user.answers ||
-    user.answerByDate ||
-    user.answerHistory ||
-    {}
-  );
+  const sources = [
+    user.answersByDate,
+    user.answersbydate,
+    user.answers,
+    user.answerByDate,
+    user.answerHistory
+  ];
+
+  for (const source of sources) {
+    const cleaned = sanitizeAnswersByDate(source);
+    if (Object.keys(cleaned).length > 0) {
+      return cleaned;
+    }
+  }
+
+  return sanitizeAnswersByDate(sources[0]);
 }
 
 async function loadQuestionByDate(date) {
@@ -169,7 +229,7 @@ async function readUsers() {
 }
 
 async function writeUsers(users) {
-  await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2), 'utf8');
+  await writeJsonAtomic(USERS_PATH, users);
 }
 
 function getTokenFromHeader(req) {
@@ -187,6 +247,11 @@ function createSession(username) {
     username,
     expiresAt: Date.now() + SESSION_TTL_MS
   });
+
+  persistSessions().catch((error) => {
+    console.error('Session persist error:', error);
+  });
+
   return token;
 }
 
@@ -203,6 +268,11 @@ function authRequired(req, res, next) {
 
   if (session.expiresAt < Date.now()) {
     sessions.delete(token);
+
+    persistSessions().catch((error) => {
+      console.error('Session persist error:', error);
+    });
+
     return res.status(401).json({ error: 'Session expired.' });
   }
 
@@ -319,6 +389,11 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/logout', authRequired, (req, res) => {
   sessions.delete(req.auth.token);
+
+  persistSessions().catch((error) => {
+    console.error('Session persist error:', error);
+  });
+
   return res.json({ ok: true });
 });
 
@@ -434,12 +509,18 @@ app.post('/api/answers', authRequired, async (req, res) => {
 app.get('/api/admin/users', adminRequired, async (req, res) => {
   try {
     const users = await readUsers();
-    const safeUsers = users.map((user) => ({
-      username: user.username,
-      correctCount: sanitizeCount(user.correctCount),
-      incorrectCount: sanitizeCount(user.incorrectCount),
-      answersByDate: sanitizeAnswersByDate(getUserAnswersSource(user))
-    }));
+    const safeUsers = users.map((user) => {
+      const answersByDate = sanitizeAnswersByDate(getUserAnswersSource(user));
+
+      return {
+        username: user.username,
+        correctCount: sanitizeCount(user.correctCount),
+        incorrectCount: sanitizeCount(user.incorrectCount),
+        answersByDate,
+        // Lowercase alias keeps existing PowerShell scripts working as-is.
+        answersbydate: answersByDate
+      };
+    });
 
     return res.json({
       count: safeUsers.length,
@@ -453,6 +534,39 @@ app.get('/api/admin/users', adminRequired, async (req, res) => {
 
 app.use(express.static(__dirname));
 
-app.listen(PORT, () => {
-  console.log(`Grizzdle server running on port ${PORT}`);
+async function startServer() {
+  await restoreSessions();
+
+  setInterval(() => {
+    const now = Date.now();
+    let removedAny = false;
+
+    for (const [token, session] of sessions.entries()) {
+      if (session.expiresAt <= now) {
+        sessions.delete(token);
+        removedAny = true;
+      }
+    }
+
+    if (removedAny) {
+      persistSessions().catch((error) => {
+        console.error('Session persist error:', error);
+      });
+    }
+  }, 60 * 1000);
+
+  app.listen(PORT, () => {
+    const dataRoot = DATA_DIR || __dirname;
+    console.log(`Grizzdle server running on port ${PORT}`);
+    console.log(`Data files: users=${USERS_PATH} sessions=${SESSIONS_PATH} (root=${dataRoot})`);
+
+    if (!DATA_DIR && !process.env.USERS_PATH) {
+      console.warn('DATA_DIR/USERS_PATH not set. On ephemeral hosting, user data can be lost on restart.');
+    }
+  });
+}
+
+startServer().catch((error) => {
+  console.error('Server startup failed:', error);
+  process.exit(1);
 });
