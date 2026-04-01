@@ -1,0 +1,5 @@
+{
+    "question": "As of this question's date, what is Grizz's BMI class?",
+    "options": ["Underweight", "Slightly Underweight", "Normal", "Overweight"],
+    "answer": "Normal"
+}
