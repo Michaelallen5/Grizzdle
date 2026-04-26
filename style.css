@@ -72,13 +72,10 @@ body {
 }
 
 #login-page-button {
-  position: fixed;
-  top: 68px;
-  right: 20px;
   background-color: purple;
   color: white;
   padding: 10px 20px;
-  margin-right: auto;
+  margin-left: auto;
   border: 2px solid beige;
   border-radius: 20px;
   cursor: pointer;
@@ -216,6 +213,24 @@ div {
 
 #archive-list a:hover {
     background-color: grey;
+}
+
+#archive-list a.archive-day-correct {
+  background-color: green;
+  color: white;
+}
+
+#archive-list a.archive-day-correct:hover {
+  background-color: #006400;
+}
+
+#archive-list a.archive-day-wrong {
+  background-color: darkred;
+  color: white;
+}
+
+#archive-list a.archive-day-wrong:hover {
+  background-color: #7a0000;
 }
 
 #archive-question {

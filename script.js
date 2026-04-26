@@ -666,36 +666,89 @@ function setupShareButton(date, data, selectedChoice, correctCount, incorrectCou
   };
 }
 
-function loadArchive() {
-  fetch('dates.json')
-    .then((res) => res.json())
-    .then((dates) => {
-      const archiveList = document.getElementById('archive-list');
-      if (!archiveList) {
-        return;
+async function getArchiveAnswersByDate() {
+  if (!authState.token) {
+    return getGuestAnswers();
+  }
+
+  try {
+    return sanitizeAnswersByDate(await syncAnswersFromServer());
+  } catch (error) {
+    if (error.status === 401) {
+      clearAuthSession();
+    }
+
+    return getGuestAnswers();
+  }
+}
+
+async function getArchiveOutcomeByDate(availableDates, answersByDate) {
+  const normalizedAnswers = sanitizeAnswersByDate(answersByDate);
+  const answeredDates = availableDates.filter((date) => normalizedAnswers[date]);
+  const outcomeByDate = {};
+
+  await Promise.all(
+    answeredDates.map(async (date) => {
+      try {
+        const response = await fetch(`./data/${date}.json`);
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        outcomeByDate[date] = normalizedAnswers[date] === data.answer ? 'correct' : 'wrong';
+      } catch {
+        // Skip styling if this day's question cannot be loaded.
       }
-
-      const availableDates = dates
-        .filter((date) => date <= today)
-        .sort((a, b) => b.localeCompare(a));
-
-      availableDates.forEach((date) => {
-        const link = document.createElement('a');
-        link.href = `index.html?date=${date}`;
-        link.textContent = new Date(date).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        archiveList.appendChild(link);
-      });
     })
-    .catch(() => {
-      const archiveList = document.getElementById('archive-list');
-      if (archiveList) {
-        archiveList.innerHTML = '<p>Unable to load archive dates.</p>';
+  );
+
+  return outcomeByDate;
+}
+
+async function loadArchive() {
+  const archiveList = document.getElementById('archive-list');
+  if (!archiveList) {
+    return;
+  }
+
+  try {
+    const response = await fetch('dates.json');
+    if (!response.ok) {
+      throw new Error('Could not load archive dates.');
+    }
+
+    const dates = await response.json();
+    const availableDates = Array.isArray(dates)
+      ? dates.filter((date) => typeof date === 'string' && date <= today).sort((a, b) => b.localeCompare(a))
+      : [];
+
+    const answersByDate = await getArchiveAnswersByDate();
+    const outcomeByDate = await getArchiveOutcomeByDate(availableDates, answersByDate);
+
+    archiveList.innerHTML = '';
+    availableDates.forEach((date) => {
+      const link = document.createElement('a');
+      link.href = `index.html?date=${date}`;
+      link.classList.add('archive-day-button');
+
+      if (outcomeByDate[date] === 'correct') {
+        link.classList.add('archive-day-correct');
+      } else if (outcomeByDate[date] === 'wrong') {
+        link.classList.add('archive-day-wrong');
       }
+
+      link.textContent = new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      archiveList.appendChild(link);
     });
+  } catch {
+    archiveList.innerHTML = '<p>Unable to load archive dates.</p>';
+  }
 }
 
 function getCurrentPageName() {
