@@ -716,12 +716,79 @@ function goToGamePage() {
   window.location.href = date ? `index.html?date=${encodeURIComponent(date)}` : 'index.html';
 }
 
+function navigateToDate(date) {
+  const params = new URLSearchParams(window.location.search);
+
+  if (date === today) {
+    params.delete('date');
+  } else {
+    params.set('date', date);
+  }
+
+  const query = params.toString();
+  window.location.href = query ? `index.html?${query}` : 'index.html';
+}
+
+function wireDayNavigation() {
+  const prevButton = document.getElementById('prev-day-button');
+  const nextButton = document.getElementById('next-day-button');
+
+  if (!prevButton || !nextButton) {
+    return;
+  }
+
+  prevButton.disabled = true;
+  nextButton.disabled = true;
+
+  fetch('dates.json')
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error('Could not load dates.');
+      }
+
+      return res.json();
+    })
+    .then((dates) => {
+      const availableDates = Array.isArray(dates)
+        ? dates
+            .filter((date) => typeof date === 'string' && date <= today)
+            .sort((a, b) => a.localeCompare(b))
+        : [];
+
+      const timeline = Array.from(new Set([...availableDates, selectedDate])).sort((a, b) => a.localeCompare(b));
+      const currentIndex = timeline.indexOf(selectedDate);
+
+      if (currentIndex === -1) {
+        return;
+      }
+
+      const prevDate = timeline[currentIndex - 1];
+      const nextDate = timeline[currentIndex + 1];
+
+      prevButton.disabled = !prevDate;
+      nextButton.disabled = !nextDate;
+
+      if (prevDate) {
+        prevButton.addEventListener('click', () => navigateToDate(prevDate));
+      }
+
+      if (nextDate) {
+        nextButton.addEventListener('click', () => navigateToDate(nextDate));
+      }
+    })
+    .catch(() => {
+      prevButton.disabled = true;
+      nextButton.disabled = true;
+    });
+}
+
 async function initializeApp() {
   if (isArchivePage()) {
     loadArchive();
     return;
   }
 
+  wireDayNavigation();
   wireAuthHandlers();
 
   if (isLoginPage()) {

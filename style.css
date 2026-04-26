@@ -44,6 +44,33 @@ body {
   margin: 16px 0;
 }
 
+#day-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 10px 0 18px;
+}
+
+#day-navigation button {
+  background-color: beige;
+  color: black;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 20px;
+  font-size: clamp(16px, 3vw, 28px);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#day-navigation button:hover {
+  background-color: grey;
+}
+
+#day-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 #login-page-button {
   position: fixed;
   top: 68px;
@@ -285,6 +312,15 @@ p {
 }
 
 @media (max-width: 900px) {
+  #day-navigation {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #day-navigation button {
+    width: min(320px, 85vw);
+  }
+
   #auth-fields {
     flex-direction: column;
     width: 100%;
